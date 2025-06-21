@@ -116,7 +116,7 @@ function showQuestionDetails(index) {
 }
 
 function addResponse(index, name, comment) {
-    questions[index].responses.push({ name, comment });
+    questions[index].responses.push({ name, comment, likes: 0, dislikes:0 });
     saveToLocalStorage();
     displayResponses(index);
 }
@@ -124,11 +124,30 @@ function addResponse(index, name, comment) {
 function displayResponses(index) {
     const responseList = document.getElementById('responseList');
     responseList.innerHTML = '';
-    questions[index].responses.forEach(response => {
+   const sortedResponses = questions[index].responses.sort((a, b) => {
+        return (b.likes - b.dislikes) - (a.likes - a.dislikes);
+    });
+    sortedResponses.forEach(response => {
         const div = document.createElement('div');
-        div.innerHTML = `<strong>${response.name}:</strong> <p>${response.comment}</p>`;
+        div.innerHTML = `
+            <strong>${response.name}:</strong> <p>${response.comment}</p>
+            <button onclick="likeResponse(${index}, ${questions[index].responses.indexOf(response)})">👍 ${response.likes}</button>
+            <button onclick="dislikeResponse(${index}, ${questions[index].responses.indexOf(response)})">👎 ${response.dislikes}</button>
+        `;
         responseList.appendChild(div);
     });
+}
+
+function likeResponse(questionIndex, responseIndex) {
+    questions[questionIndex].responses[responseIndex].likes++;
+    saveToLocalStorage();
+    displayResponses(questionIndex);
+}
+
+function dislikeResponse(questionIndex, responseIndex) {
+    questions[questionIndex].responses[responseIndex].dislikes++;
+    saveToLocalStorage();
+    displayResponses(questionIndex);
 }
 
 function toggleResponses(index) {
